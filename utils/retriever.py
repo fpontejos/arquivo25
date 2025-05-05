@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 import chromadb
+from chromadb.config import Settings
 from utils.embeddings import OpenAIEmbedding
 
 
@@ -23,7 +24,9 @@ class ChromaDBRetriever:
         self.embedding = embedding
 
         # Initialize ChromaDB client
-        self.client = chromadb.PersistentClient(path=db_path)
+        self.client = chromadb.PersistentClient(
+            path=db_path, settings=Settings(anonymized_telemetry=False)
+        )
 
         # Get existing collection
         try:
