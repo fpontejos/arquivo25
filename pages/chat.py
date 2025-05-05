@@ -88,8 +88,29 @@ def main():
                 # Show retrieved documents in expander
                 with st.expander("Retrieved Documents"):
                     for i, doc in enumerate(relevant_docs):
-                        st.markdown(f"**Document {i+1}:**")
-                        st.text(doc)
+                        print("doc--------------")
+                        print(doc)
+                        print("end--------------")
+
+                        content = doc.get("content", "")
+                        metadata = doc.get("metadata", {})
+                        doc_id = doc.get("id", f"doc_{i}")
+                        similarity = 1.0 - (
+                            doc.get("distance", 0) or 0
+                        )  # Convert distance to similarity
+
+                        st.markdown(f"**Document {i+1}: {doc_id}**")
+                        st.markdown(f"**Relevance Score:** {similarity:.2f}")
+
+                        # Document content
+                        st.markdown("**Content:**")
+                        st.text(content)
+
+                        # Metadata
+                        if metadata:
+                            st.markdown("**Metadata:**")
+                            st.json(metadata)
+
                         st.divider()
 
                 # Generate response

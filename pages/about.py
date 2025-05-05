@@ -29,11 +29,40 @@ def main():
         st.markdown(f"**Database Path:** {retriever.db_path}")
         st.markdown(f"**Document Count:** {collection_info.get('count', 'Unknown')}")
 
+        # Display collection metadata if available
+        if collection_info.get("metadata"):
+            with st.expander("Collection Metadata"):
+                st.json(collection_info.get("metadata", {}))
+
         # Display a sample of document IDs if available
         if collection_info.get("ids") and len(collection_info.get("ids", [])) > 0:
             with st.expander("Sample Document IDs"):
                 for doc_id in collection_info.get("ids", [])[:5]:  # Show only first 5
                     st.text(doc_id)
+
+        # Display sample documents with metadata
+        if (
+            collection_info.get("sample_documents")
+            and len(collection_info.get("sample_documents", [])) > 0
+        ):
+            with st.expander("Sample Documents"):
+                for i, doc in enumerate(
+                    collection_info.get("sample_documents", [])[:3]
+                ):
+                    metadata = {}
+                    if collection_info.get("sample_metadatas") and i < len(
+                        collection_info.get("sample_metadatas", [])
+                    ):
+                        metadata = collection_info.get("sample_metadatas", [])[i]
+
+                    st.markdown(f"**Document {i+1}:**")
+                    st.text(doc)
+
+                    if metadata:
+                        st.markdown("**Metadata:**")
+                        st.json(metadata)
+
+                    st.divider()
 
     # Configuration information
     st.subheader("Configuration")

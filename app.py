@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument(
         "--collection_name",
         type=str,
-        default="demodb",
+        default="documents",
         help="Name of the ChromaDB collection",
     )
     return parser.parse_args()
@@ -40,7 +40,7 @@ def init_session_state():
         # Initialize components
         embedding = OpenAIEmbedding(
             api_key=os.getenv("OPENAI_API_KEY"),
-            model=config.get("embedding_model", "text-embedding-3-small"),
+            model=config.get("embedding_model", "text-embedding-3-large"),
         )
 
         retriever = ChromaDBRetriever(
@@ -91,10 +91,10 @@ def main():
         # Get response
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                # Retrieve relevant documents
+                # Retrieve relevant documents with metadata
                 relevant_docs = st.session_state.retriever.retrieve(prompt, top_k=3)
 
-                # Generate response
+                # Generate response with document sources and metadata
                 response = st.session_state.generator.generate_response(
                     prompt, relevant_docs
                 )
