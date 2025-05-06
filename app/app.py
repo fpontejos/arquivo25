@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -21,12 +22,15 @@ load_dotenv()
 def parse_args():
     parser = argparse.ArgumentParser(description="RAG Application with ChromaDB")
     parser.add_argument(
-        "--db_path", type=str, default="./chromadb", help="Path to ChromaDB directory"
+        "--db_path",
+        type=str,
+        default="./data/chroma_cravo",
+        help="Path to ChromaDB directory",
     )
     parser.add_argument(
         "--collection_name",
         type=str,
-        default="documents",
+        default="cravo",
         help="Name of the ChromaDB collection",
     )
     return parser.parse_args()
@@ -34,50 +38,134 @@ def parse_args():
 
 # Initialize session state for chat history
 def init_session_state():
+    args = st.session_state.args
+    config = st.session_state.config
+
     if "messages" not in st.session_state:
         st.session_state.messages = []
+
     if "retriever" not in st.session_state:
-        args = parse_args()
-
-        # Load configuration
-        config = load_config()
-
-        # Initialize components
-        embedding = OpenAIEmbedding(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            model=config.get("embedding_model", "text-embedding-3-large"),
-        )
-
-        retriever = ChromaDBRetriever(
-            db_path=args.db_path,
-            collection_name=args.collection_name,
-            embedding=embedding,
-        )
-
-        generator = OpenAIGenerator(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            model=config.get("model", "gpt-4o"),
-            temperature=config.get("temperature", 0.7),
-        )
+        retriever, generator = get_retriever(args, config)
 
         st.session_state.retriever = retriever
         st.session_state.generator = generator
-        st.session_state.config = config
-        st.session_state.df = None
 
-        initialize_data()
+    if "df" not in st.session_state:
+        try:
+            client = retriever.client
+
+            collection = client.get_collection(args.collection_name)
+
+            # Retrieve all documents and their embeddings
+            results = collection.get(include=["embeddings", "documents", "metadatas"])
+
+            # Access all embeddings
+            embeddings = results["embeddings"]
+
+            # If you need to access the documents and metadata as well
+            documents = results["documents"]
+            metadatas = results["metadatas"]
+
+            embeddings_path = "./data/embeddings/"
+
+            embeddings, umap_df, projections = initialize_data(
+                embeddings_path, collection
+            )
+            st.session_state.embeddings = embeddings
+            st.session_state.df = umap_df
+            st.session_state.umap_projection = projections
+
+        except Exception as e:
+            print(3)
+            df = None
+            st.session_state.df = None
+
+        embeddings, umap_df, projections = initialize_data(embeddings_path, collection)
+        st.session_state.embeddings = embeddings
+        st.session_state.df = umap_df
+        st.session_state.umap_projection = projections
+
+
+def get_retriever(args, config):
+
+    # Initialize components
+    embedding = OpenAIEmbedding(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model=config.get("embedding_model", os.getenv("DEFAULT_EMBEDDING_MODEL")),
+    )
+
+    retriever = ChromaDBRetriever(
+        db_path=args.db_path,
+        collection_name=args.collection_name,
+        embedding=embedding,
+    )
+
+    generator = OpenAIGenerator(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model=config.get("model", os.getenv("DEFAULT_COMPLETION_MODEL")),
+        temperature=config.get("temperature", 0.7),
+    )
+
+    return retriever, generator
+
+
+def initialize_data(embeddings_path, collection):
+    """Initialize data if not already in session state."""
+    if st.session_state.df is None:
+        with st.spinner("Generating documents and embeddings..."):
+
+            umap_path = os.path.join(embeddings_path, "umap_metadata.csv")
+            umap_df = pd.read_csv(umap_path)
+
+            projections = umap_df[["x", "y"]].values
+
+            categs = umap_df["source_name"].unique().tolist() + ["Current Query"]
+            umap_df["_highlighted"] = False
+
+            print(umap_df.columns, categs)
+
+            print("-------------------------------")
+
+            # Retrieve all documents and their embeddings
+            results = collection.get(include=["embeddings", "documents", "metadatas"])
+            # Access all embeddings
+            embeddings = results["embeddings"]
+
+            # embeddings, df, projections = initialize_data()
+
+            # Print information about the embeddings
+            print(f"Retrieved {len(embeddings)} embeddings")
+            print(f"Dimension of embeddings: {embeddings.shape}")
+            # st.session_state.embeddings = embeddings
+
+            return embeddings, umap_df, projections
 
 
 def main():
+    # Get the parent directory
+    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+
+    print(parent_directory)
+    # Add the parent directory to the Python path if it is not already included
+    if parent_directory not in sys.path:
+        sys.path.append(parent_directory)
+
     st.set_page_config(
         page_title="RAG Chat Assistant",
         page_icon="🤖",
         layout="wide",
         initial_sidebar_state="auto",
     )
+    print(12, os.getcwd())
+    # Load configuration
+    args = parse_args()
+    config = load_config()
+    st.session_state.config = config
+    st.session_state.args = args
 
     # Initialize session state
     init_session_state()
+    print(11)
 
     col1, col2 = st.columns([1, 1])
 
@@ -86,65 +174,7 @@ def main():
             render_chat_column()
 
         with col2:
-            st.title("Scatter Col")
             render_visualization_column()
-
-
-def initialize_data():
-    """Initialize data if not already in session state."""
-    if st.session_state.df is None:
-        with st.spinner("Generating documents and embeddings..."):
-
-            retriever = st.session_state.retriever
-            client = retriever.client
-            # db_path = "./../data/chroma_db"
-            # client = chromadb.PersistentClient(path=db_path)
-
-            # Get your collection
-            collection = retriever.collection
-
-            # Retrieve all documents and their embeddings
-            results = collection.get(include=["embeddings", "documents", "metadatas"])
-
-            # Access all embeddings
-            embeddings = results["embeddings"]
-
-            # Print information about the embeddings
-            print(f"Retrieved {len(embeddings)} embeddings")
-            print(f"Dimension of embeddings: {embeddings.shape}")
-
-            # If you need to access the documents and metadata as well
-            documents = results["documents"]
-            metadatas = results["metadatas"]
-
-            # documents = generate_sample_documents(100)
-            # embeddings = create_embeddings(documents)
-            reducer = umap.UMAP(
-                n_components=2,
-                n_neighbors=15,
-                min_dist=0.1,
-                metric="cosine",
-                random_state=42,
-            )
-            projections = reducer.fit_transform(embeddings)
-            df = pd.DataFrame(documents, columns=["document"])
-            df = pd.concat([df, pd.DataFrame(metadatas)], axis=1)
-            df["x"] = projections[:, 0]
-            df["y"] = projections[:, 1]
-
-            categs = [
-                "Technology",
-                "Science",
-                "Arts",
-                "History",
-                "Current Query",
-            ]
-            rng = np.random.default_rng(seed=42)  # Set random seed for reproducibility
-            df["category"] = df["x"].apply(lambda x: categs[rng.integers(0, 5)])
-
-            st.session_state.embeddings = embeddings
-            st.session_state.df = df
-            st.session_state.umap_projection = projections
 
 
 if __name__ == "__main__":

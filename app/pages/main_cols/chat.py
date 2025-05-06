@@ -34,6 +34,12 @@ def render_chat_column():
                     prompt, relevant_docs
                 )
 
+                df = st.session_state.df
+                df["_highlighted"] = False
+                highlight_ids = [int(doc["id"].split("_")[-1]) for doc in relevant_docs]
+                df.loc[highlight_ids, "_highlighted"] = True
+                st.session_state.df = df
+
                 # Display response
                 st.markdown(response)
 
