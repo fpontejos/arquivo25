@@ -145,7 +145,7 @@ def main():
     # Get the parent directory
     parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 
-    print(parent_directory)
+    # print(parent_directory)
     # Add the parent directory to the Python path if it is not already included
     if parent_directory not in sys.path:
         sys.path.append(parent_directory)
@@ -156,7 +156,12 @@ def main():
         layout="wide",
         initial_sidebar_state="auto",
     )
-    print(12, os.getcwd())
+    st.session_state.dark = True
+    with open("./app/assets/style.css") as f:
+        css = f.read()
+        st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+    # print(12, os.getcwd())
     # Load configuration
     args = parse_args()
     config = load_config()
@@ -165,7 +170,7 @@ def main():
 
     # Initialize session state
     init_session_state()
-    print(11)
+    # print(11)
 
     col1, col2 = st.columns([1, 1])
 
@@ -174,6 +179,24 @@ def main():
             render_chat_column()
 
         with col2:
+            # Initialize session state variables if they don't exist
+            if "highlighted_indices" not in st.session_state:
+                st.session_state.highlighted_indices = []
+            if "highlight_active" not in st.session_state:
+                st.session_state.highlight_active = False
+
+            color_palette = {
+                "carnation_red": "#D72638",
+                "deep_gold": "#F4A300",
+                "Expresso": "#FF4C4C",
+                "Web": "#E07B39",
+                "Wikipedia PT": "#556B2F",
+                "Publico": "#2c6b7e",
+                "x": "#2E9CCA",
+                "Current Query": "#6F1D1B",
+            }
+            st.session_state.color_palette = color_palette
+
             render_visualization_column()
 
 

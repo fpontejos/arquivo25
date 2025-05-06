@@ -7,7 +7,7 @@ def render_chat_column():
     """
     Renders the right column with embedding chat functionality.
     """
-    st.title("Embedding Chat")
+    st.title("Pergunte ao Passado")
 
     # Display chat messages
     for message in st.session_state.messages:
@@ -39,43 +39,19 @@ def render_chat_column():
                 highlight_ids = [int(doc["id"].split("_")[-1]) for doc in relevant_docs]
                 df.loc[highlight_ids, "_highlighted"] = True
                 st.session_state.df = df
+                st.session_state.highlight_active = False
+                st.session_state.highlighted_indices = []
+
+                # print(highlight_ids)
+                # print("-------------")
+                # print(relevant_docs)
+
+                if len(highlight_ids) > 0:
+                    st.session_state.highlight_active = True
+                    st.session_state.highlighted_indices = highlight_ids
 
                 # Display response
                 st.markdown(response)
 
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-
-    # # Display chat messages
-    # for message in st.session_state.messages:
-    #     with st.chat_message(message["role"]):
-    #         st.write(message["content"])
-
-    # # Chat input
-    # if prompt := st.chat_input("Type a message..."):
-    #     # Add user message to chat history
-    #     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    #     # Display user message
-    #     with st.chat_message("user"):
-    #         st.write(prompt)
-
-    #     # Simulate document retrieval
-    #     with st.spinner("Retrieving documents..."):
-    #         retrieved_docs = simulate_retrieval(prompt)
-    #         time.sleep(1)  # Simulate processing time
-
-    #     # Simulate RAG response
-    #     with st.spinner("Generating response..."):
-    #         response = simulate_rag_response(prompt, retrieved_docs)
-    #         time.sleep(1)  # Simulate processing time
-
-    #     # Add assistant response to chat history
-    #     st.session_state.messages.append({"role": "assistant", "content": response})
-
-    #     # Display assistant response
-    #     with st.chat_message("assistant"):
-    #         st.write(response)
-
-    #     # Force a rerun to update the visualization with the new query point
-    #     st.rerun()
