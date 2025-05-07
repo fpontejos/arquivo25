@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arquivo dos Cravos</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+      }
+      .container {
+        text-align: center;
+      }
+      .redirect-message {
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+        color: #666;
+      }
+
+      .loader {
+        width: 80px;
+        margin: 0 auto;
+        aspect-ratio: 2;
+        --c: linear-gradient(
+          #c38b3f 25%,
+          #53693f 0 50%,
+          #dc3922 0 75%,
+          #c38b3f 0
+        );
+        background: var(--c), var(--c), var(--c), var(--c);
+        background-size: 26% 400%;
+        background-position: calc(0 * 100% / 3) 100%, calc(1 * 100% / 3) 100%,
+          calc(2 * 100% / 3) 100%, calc(3 * 100% / 3) 100%;
+        background-repeat: no-repeat;
+        animation: l10 4s infinite;
+      }
+      @keyframes l10 {
+        0% {
+          background-position: calc(0 * 100% / 3) calc(3 * 100% / 3),
+            calc(1 * 100% / 3) calc(3 * 100% / 3),
+            calc(2 * 100% / 3) calc(3 * 100% / 3),
+            calc(3 * 100% / 3) calc(3 * 100% / 3);
+        }
+        8.33% {
+          background-position: calc(0 * 100% / 3) calc(2 * 100% / 3),
+            calc(1 * 100% / 3) calc(3 * 100% / 3),
+            calc(2 * 100% / 3) calc(3 * 100% / 3),
+            calc(3 * 100% / 3) calc(3 * 100% / 3);
+        }
+        16.67% {
+          background-position: calc(0 * 100% / 3) calc(2 * 100% / 3),
+            calc(1 * 100% / 3) calc(2 * 100% / 3),
+            calc(2 * 100% / 3) calc(3 * 100% / 3),
+            calc(3 * 100% / 3) calc(3 * 100% / 3);
+        }
+        25% {
+          background-position: calc(0 * 100% / 3) calc(2 * 100% / 3),
+            calc(1 * 100% / 3) calc(2 * 100% / 3),
+            calc(2 * 100% / 3) calc(2 * 100% / 3),
+            calc(3 * 100% / 3) calc(3 * 100% / 3);
+        }
+        30%,
+        33.33% {
+          background-position: calc(0 * 100% / 3) calc(2 * 100% / 3),
+            calc(1 * 100% / 3) calc(2 * 100% / 3),
+            calc(2 * 100% / 3) calc(2 * 100% / 3),
+            calc(3 * 100% / 3) calc(2 * 100% / 3);
+        }
+        41.67% {
+          background-position: calc(0 * 100% / 3) calc(1 * 100% / 3),
+            calc(1 * 100% / 3) calc(2 * 100% / 3),
+            calc(2 * 100% / 3) calc(2 * 100% / 3),
+            calc(3 * 100% / 3) calc(2 * 100% / 3);
+        }
+        50% {
+          background-position: calc(0 * 100% / 3) calc(1 * 100% / 3),
+            calc(1 * 100% / 3) calc(1 * 100% / 3),
+            calc(2 * 100% / 3) calc(2 * 100% / 3),
+            calc(3 * 100% / 3) calc(2 * 100% / 3);
+        }
+        58.33% {
+          background-position: calc(0 * 100% / 3) calc(1 * 100% / 3),
+            calc(1 * 100% / 3) calc(1 * 100% / 3),
+            calc(2 * 100% / 3) calc(1 * 100% / 3),
+            calc(3 * 100% / 3) calc(2 * 100% / 3);
+        }
+        63%,
+        66.67% {
+          background-position: calc(0 * 100% / 3) calc(1 * 100% / 3),
+            calc(1 * 100% / 3) calc(1 * 100% / 3),
+            calc(2 * 100% / 3) calc(1 * 100% / 3),
+            calc(3 * 100% / 3) calc(1 * 100% / 3);
+        }
+        75% {
+          background-position: calc(0 * 100% / 3) calc(0 * 100% / 3),
+            calc(1 * 100% / 3) calc(1 * 100% / 3),
+            calc(2 * 100% / 3) calc(1 * 100% / 3),
+            calc(3 * 100% / 3) calc(1 * 100% / 3);
+        }
+        83.33% {
+          background-position: calc(0 * 100% / 3) calc(0 * 100% / 3),
+            calc(1 * 100% / 3) calc(0 * 100% / 3),
+            calc(2 * 100% / 3) calc(1 * 100% / 3),
+            calc(3 * 100% / 3) calc(1 * 100% / 3);
+        }
+        91.67% {
+          background-position: calc(0 * 100% / 3) calc(0 * 100% / 3),
+            calc(1 * 100% / 3) calc(0 * 100% / 3),
+            calc(2 * 100% / 3) calc(0 * 100% / 3),
+            calc(3 * 100% / 3) calc(1 * 100% / 3);
+        }
+        97%,
+        100% {
+          background-position: calc(0 * 100% / 3) calc(0 * 100% / 3),
+            calc(1 * 100% / 3) calc(0 * 100% / 3),
+            calc(2 * 100% / 3) calc(0 * 100% / 3),
+            calc(3 * 100% / 3) calc(0 * 100% / 3);
+        }
+      }
+    </style>
+    <script>
+      // Set the URL to redirect to
+      const redirectURL = "https://www.canva.com/design/DAGmsxAOnqQ/53E4aL9PmAYSK-eCyGjqPw/watch";
+      
+      // Set timeout for redirection (in milliseconds) - currently set to 3 seconds
+      window.setTimeout(function() {
+          window.location.href = redirectURL;
+      }, 10);
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <img src="./img/cravo_text.png" alt="Centered Image" />
+      <p class="redirect-message">loading</p>
+      <div class="loader"></div>
+    </div>
+  </body>
+</html>
