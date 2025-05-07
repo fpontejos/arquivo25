@@ -8,7 +8,7 @@ from utils.retriever import ChromaDBRetriever
 def main():
     st.set_page_config(
         page_title="About RAG Chat",
-        page_icon="🤖",
+        page_icon="./assets/site/img/flower_square.png",
         layout="centered",
     )
 

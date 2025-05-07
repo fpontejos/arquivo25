@@ -15,7 +15,8 @@ def render_chat_column():
             st.markdown(message["content"])
 
     # Input for new question
-    if prompt := st.chat_input("Ask a question about your documents..."):
+
+    if prompt := st.chat_input("Introduza a sua mensagem:"):
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
 
@@ -27,7 +28,7 @@ def render_chat_column():
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 # Retrieve relevant documents with metadata
-                relevant_docs = st.session_state.retriever.retrieve(prompt, top_k=3)
+                relevant_docs = st.session_state.retriever.retrieve(prompt, top_k=5)
 
                 # Generate response with document sources and metadata
                 response = st.session_state.generator.generate_response(

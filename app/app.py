@@ -76,7 +76,7 @@ def init_session_state():
             st.session_state.umap_projection = projections
 
         except Exception as e:
-            print(3)
+            # print(3)
             df = None
             st.session_state.df = None
 
@@ -122,9 +122,9 @@ def initialize_data(embeddings_path, collection):
             categs = umap_df["source_name"].unique().tolist() + ["Current Query"]
             umap_df["_highlighted"] = False
 
-            print(umap_df.columns, categs)
+            # print(umap_df.columns, categs)
 
-            print("-------------------------------")
+            # print("-------------------------------")
 
             # Retrieve all documents and their embeddings
             results = collection.get(include=["embeddings", "documents", "metadatas"])
@@ -151,15 +151,20 @@ def main():
         sys.path.append(parent_directory)
 
     st.set_page_config(
-        page_title="RAG Chat Assistant",
-        page_icon="🤖",
+        page_title="Arquivo dos Cravos",
+        page_icon="./app/assets/flower_square.png",
+        # page_icon="🤖",
         layout="wide",
-        initial_sidebar_state="auto",
+        initial_sidebar_state="collapsed",
     )
+    st.logo("./app/assets/flower_square.png", size="medium", link=None, icon_image=None)
+
     st.session_state.dark = True
     with open("./app/assets/style.css") as f:
         css = f.read()
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+    # Initialize session state
 
     # print(12, os.getcwd())
     # Load configuration

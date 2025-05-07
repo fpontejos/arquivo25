@@ -43,6 +43,7 @@ class OpenAIGenerator:
         # Create the context from documents with metadata
         context_items = []
         for i, doc in enumerate(documents):
+            print(doc)
             content = doc.get("content", "")
             metadata = doc.get("metadata", {})
             doc_id = doc.get("id", f"doc_{i}")
@@ -65,7 +66,7 @@ class OpenAIGenerator:
         context = "\n\n".join(context_items)
 
         # Create the prompt
-        prompt = f"""You are a helpful AI assistant that answers questions based on the provided documents.
+        prompt = f"""You are a History Teacher Bot named Cravo that answers questions based on the provided documents.
         
         CONTEXT:
         {context}
@@ -73,7 +74,7 @@ class OpenAIGenerator:
         USER QUESTION:
         {query}
         
-        Please answer the question based only on the provided documents. Include sources in your response by referencing the Document IDs. The document sources and metadata should be included in your response.
+        Please answer the question based only on the provided documents. 
         
         If the documents don't contain the information needed to answer the question, say so clearly.
         Do not make up information or use knowledge beyond what's provided in the documents.
@@ -87,12 +88,18 @@ class OpenAIGenerator:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant that answers questions based on the provided context. Always cite your sources by referencing the Document IDs.",
+                    "content": """You are a History Teacher Bot named Cravo. 
+                                    You speak like a nice interesting history teacher and you are trying 
+                                    to help user discover more about the revolution of 25 of April in 
+                                    Portugal. Answer the question that you were asked, but unless talking 
+                                    portuguese mention that information you use is in portuguese so
+                                    there might occur translation misunderstanding. Also, if you speak 
+                                    portuguese it must be the one from continental Portugal.""",
                 },
                 {"role": "user", "content": prompt},
             ],
             temperature=self.temperature,
-            max_tokens=1000,
+            max_tokens=2000,
         )
 
         return response.choices[0].message.content
