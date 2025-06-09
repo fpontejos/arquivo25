@@ -1,3 +1,13 @@
 h1 {
     font-size: 2rem !important;
 }
+
+.stSidebar {
+    background-image: url(https://arquivodoscravos.netlify.app/img/cravo_text_wr.png);
+    background-repeat: no-repeat;
+    background-position: bottom 4rem center;
+}
+
+.relevant_docs {
+    border: 1px solid #5f5f5f;
+}

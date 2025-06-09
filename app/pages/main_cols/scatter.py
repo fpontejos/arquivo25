@@ -55,6 +55,8 @@ def create_base_plot(df, scatter_args, marker_size, reduced_opacity=False):
     """
     fig = px.scatter(df, **scatter_args)
 
+    # print(df.columns)
+
     # Customize the plot appearance
     opacity = (
         0.5 if reduced_opacity else 0.85
@@ -68,7 +70,7 @@ def create_base_plot(df, scatter_args, marker_size, reduced_opacity=False):
         selector=dict(mode="markers"),
     )
     fig.update_layout(
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
         plot_bgcolor="white",
         width=700,
         height=600,
@@ -93,11 +95,6 @@ def highlight_query_points(fig, df):
     for category in highlighted_df["source_name"].unique():
         category_df = highlighted_df[highlighted_df["source_name"] == category]
         if not category_df.empty:
-            # Find the original color for this category
-            # category_index = categories.index(category) % len(
-            #     px.colors.qualitative.Bold
-            # )
-            # category_color = px.colors.qualitative.Bold[category_index]
 
             # Add the highlighted points
             fig.add_trace(
@@ -133,49 +130,149 @@ def render_visualization_column():
     df = st.session_state.df
     categs = df["source_name"].unique().tolist()
 
+    df["hover_text"] = df.apply(
+        lambda row: f"Fonte: {row['source_name']}<br>"
+        + f"{row['tstamp']}<br>"
+        + f"Arquivo: {row['linkToArchive']}<br>"
+        + f"URL: {row['linkToNoFrame']}",
+        axis=1,
+    )
+
+    # print(df.columns)
+
     # Define scatter plot arguments
     scatter_args = dict(
         x="x",
         y="y",
         # color_discrete_sequence=px.colors.qualitative.Bold,
         color="source_name",
-        hover_name="title",
+        # hover_name="title",
         category_orders={"category": categs},
         labels={"category": "Source"},
         color_discrete_map=st.session_state.color_palette,
         title="",
+        hover_name="hover_text",
+        custom_data=["hover_text"],
+        hover_data={
+            "hover_text": False,
+            "x": False,  # Show x with 2 decimal places
+            "y": False,  # Hide y from hover
+            "source_name": False,  # Hide category from hover
+        },
         # title="UMAP Projection of Document Embeddings",
     )
 
-    # UI controls for category selection
-    categories = st.multiselect(
-        "Select categories to display:",
-        options=categs,
-        default=categs,
-    )
+    controls_container = st.container()
+
+    with controls_container:
+
+        # UI controls for category selection
+        categories = st.multiselect(
+            "Select categories to display:",
+            options=categs,
+            default=categs,
+        )
 
     # Filter dataframe based on selected categories
     filtered_df = df[df["source_name"].isin(categories)]
+    col1, col2 = st.columns([2, 1])
 
-    # Create the base visualization with reduced opacity when highlighting is active
-    fig = create_base_plot(
-        filtered_df,
-        scatter_args,
-        DEFAULT_MARKER_SIZE,
-        reduced_opacity=st.session_state.highlight_active,
+    with col1:
+
+        # Create the base visualization with reduced opacity when highlighting is active
+        fig = create_base_plot(
+            filtered_df,
+            scatter_args,
+            DEFAULT_MARKER_SIZE,
+            reduced_opacity=st.session_state.highlight_active,
+        )
+
+        # Highlight query points if they exist
+
+        # Add highlighted random points if active
+        if st.session_state.highlight_active and st.session_state.highlighted_indices:
+            highlight_query_points(fig, filtered_df)
+            focus_on_highlights(fig, filtered_df, st.session_state.highlighted_indices)
+
+        fig = apply_theme(fig)
+
+        # Display the plot
+        # st.plotly_chart(fig, use_container_width=True)
+
+        selected_points = st.plotly_chart(
+            fig, on_select="rerun", key="scatter_plot", use_container_width=True
+        )
+
+    # Render metadata
+    with col2:
+        # Create a container for the metadata
+        metadata_container = st.container()
+
+        with metadata_container:
+            # print("st.session_state.metadata")
+            # print(st.session_state.color_palette)
+            if selected_points and selected_points["selection"]["points"]:
+                # Display multiple points horizontally if multiple are selected
+                num_points = len(selected_points["selection"]["points"])
+                if num_points > 1:
+                    cols = st.columns(min(num_points, 3))  # Max 3 columns
+
+                for i, point in enumerate(selected_points["selection"]["points"]):
+                    point_index = point["point_index"]
+                    selected_row = df.iloc[point_index]
+
+                    # If multiple points, use columns
+                    if num_points > 1:
+                        col_idx = i % 3
+                        with cols[col_idx]:
+                            display_metadata_card(selected_row, point_index)
+                    else:
+                        display_metadata_card(selected_row, point_index)
+            else:
+                st.info("Clique num ponto do gráfico para ver os seus detalhes aqui.")
+
+
+def display_metadata_card(selected_row, point_index):
+    res_id = selected_row["meta_id"]
+    point_meta = {}
+    meta_content = ""
+    if st.session_state.metadata:
+        for mi, metas in enumerate(st.session_state.metadata):
+            # print(mi, metas)
+            if metas["m_id"] == res_id:
+                point_meta["link_arquivo"] = metas["link"]
+                point_meta["content"] = st.session_state.documents[mi]
+
+    meta_content = ".".join(point_meta["content"].split(".")[:2])
+
+    color_palette = st.session_state.color_palette
+    bgcolor = color_palette["BGColor2"]
+    textcolor = color_palette["TextColor"]
+    tstamp = str(selected_row["tstamp"])
+
+    if selected_row["source_name"] in list(color_palette.keys()):
+        color = color_palette[selected_row["source_name"]]
+    else:
+        color = "#444444"
+
+    """Helper function to display metadata card"""
+    st.markdown(
+        f"""
+    <div style="
+        border: 8px solid {color}77;
+        padding: 15px;
+        margin: 10px 0;
+        color: {textcolor};
+        background-color: {color}44;
+    ">
+        <h4 style="color: {color}; margin-top: 0;">Detalhes</h4>
+        <p><strong>Fonte:</strong> {selected_row['source_name']} ({tstamp[:4]}-{tstamp[4:6]}-{tstamp[6:8]})</p>
+        <div>{meta_content} ...</div>
+        <p><em><strong>Ler mais: </strong></em> <a href="{selected_row["linkToArchive"]}">{selected_row['linkToArchive']}</a></p>
+    </div>
+    """,
+        unsafe_allow_html=True,
     )
-
-    # Highlight query points if they exist
-
-    # Add highlighted random points if active
-    if st.session_state.highlight_active and st.session_state.highlighted_indices:
-        highlight_query_points(fig, filtered_df)
-        focus_on_highlights(fig, filtered_df, st.session_state.highlighted_indices)
-
-    fig = apply_theme(fig)
-
-    # Display the plot
-    st.plotly_chart(fig, use_container_width=True)
 
 
 def focus_on_highlights(fig, df, indices):

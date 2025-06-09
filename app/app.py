@@ -64,12 +64,12 @@ def init_session_state():
 
             # If you need to access the documents and metadata as well
             documents = results["documents"]
-            metadatas = results["metadatas"]
+            result_meta = results["metadatas"]
 
             embeddings_path = "./data/embeddings/"
 
             embeddings, umap_df, projections = initialize_data(
-                embeddings_path, collection
+                embeddings_path, collection, results
             )
             st.session_state.embeddings = embeddings
             st.session_state.df = umap_df
@@ -80,7 +80,9 @@ def init_session_state():
             df = None
             st.session_state.df = None
 
-        embeddings, umap_df, projections = initialize_data(embeddings_path, collection)
+        embeddings, umap_df, projections = initialize_data(
+            embeddings_path, collection, results
+        )
         st.session_state.embeddings = embeddings
         st.session_state.df = umap_df
         st.session_state.umap_projection = projections
@@ -109,7 +111,7 @@ def get_retriever(args, config):
     return retriever, generator
 
 
-def initialize_data(embeddings_path, collection):
+def initialize_data(embeddings_path, collection, results):
     """Initialize data if not already in session state."""
     if st.session_state.df is None:
         with st.spinner("Generating documents and embeddings..."):
@@ -137,6 +139,8 @@ def initialize_data(embeddings_path, collection):
             print(f"Retrieved {len(embeddings)} embeddings")
             print(f"Dimension of embeddings: {embeddings.shape}")
             # st.session_state.embeddings = embeddings
+            st.session_state.documents = results["documents"]
+            st.session_state.metadata = results["metadatas"]
 
             return embeddings, umap_df, projections
 
@@ -153,13 +157,15 @@ def main():
     st.set_page_config(
         page_title="Arquivo dos Cravos",
         page_icon="./app/assets/flower_square.png",
-        # page_icon="🤖",
         layout="wide",
         initial_sidebar_state="collapsed",
     )
     st.logo("./app/assets/flower_square.png", size="medium", link=None, icon_image=None)
 
     st.session_state.dark = True
+
+    session_loading = True
+
     with open("./app/assets/style.css") as f:
         css = f.read()
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -177,9 +183,12 @@ def main():
     init_session_state()
     # print(11)
 
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
+
+    # session_loading = True
 
     with st.container():
+
         with col1:
             render_chat_column()
 
@@ -199,6 +208,9 @@ def main():
                 "Publico": "#2c6b7e",
                 "x": "#2E9CCA",
                 "Current Query": "#6F1D1B",
+                "TextColor": "#bdbcbc",
+                "BGColor": "#141d28",
+                "BGColor2": "#1d2631",
             }
             st.session_state.color_palette = color_palette
 
