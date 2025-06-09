@@ -1,5 +1,9 @@
 # Arquivo Dos Cravos
 
+Video: [[Link](https://drive.google.com/file/d/1BcNQRrz1jDN3ksK9fY59QI6X-2c5Pz6l/view?usp=sharing)]
+
+App: [[Link](https://arquivodoscravos.netlify.app/)]
+
 ---
 ## Technical Details
 
