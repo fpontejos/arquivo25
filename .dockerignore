@@ -1,3 +1,6 @@
+docs
+*_ignore*
+
 # Git
 .git
 .gitignore
@@ -42,7 +45,7 @@ ENV/
 Thumbs.db
 
 # ChromaDB data (will be mounted as volume)
-chromadb/
+*chroma_cravo/
 
 # Environment variables
 .env

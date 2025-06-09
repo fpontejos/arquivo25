@@ -1,3 +1,5 @@
+*_ignore*
+
 # Environment variables
 .env
 
