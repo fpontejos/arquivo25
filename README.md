@@ -1,8 +1,12 @@
-# RAG Chat Assistant
+# Arquivo Dos Cravos
 
-A simple Retrieval-Augmented Generation (RAG) application that connects to an existing ChromaDB vector database. The application provides a clean, minimalist chat interface to interact with your documents.
+---
+## Technical Details
 
-## Features
+A simple Retrieval-Augmented Generation (RAG) application that connects to an existing ChromaDB vector database. 
+The application provides a clean, minimalist chat interface to interact with your documents.
+
+### Features
 
 - Connect to an existing ChromaDB vector database
 - Chat interface for asking questions about your documents
@@ -11,13 +15,13 @@ A simple Retrieval-Augmented Generation (RAG) application that connects to an ex
 - Configuration management for easy customization
 - About page with database statistics and configuration information
 
-## Prerequisites
+### Prerequisites
 
 - Python 3.8+
 - OpenAI API key
 - Existing ChromaDB vector database
 
-## Installation
+### Installation
 
 1. Clone the repository:
 
@@ -39,9 +43,9 @@ pip install -r requirements.txt
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-## Usage
+### Usage
 
-### Running the Application
+#### Running the Application
 
 Run the application with default settings:
 
@@ -55,13 +59,13 @@ Or specify custom ChromaDB path and collection name:
 streamlit run app.py -- --db_path /path/to/chromadb --collection_name your_collection
 ```
 
-### Using the Application
+#### Using the Application
 
 1. Open your browser and navigate to `http://localhost:8501`
 2. Use the chat interface to ask questions about your documents
 3. View database information and configuration settings in the "About" page
 
-## Configuration
+### Configuration
 
 The application can be configured through the `data/config.json` file, which is created automatically on first run with default values:
 
@@ -75,16 +79,16 @@ The application can be configured through the `data/config.json` file, which is 
 }
 ```
 
-## Docker Support
+### Docker Support
 
 Build and run the application using Docker:
 
 ```bash
 # Build the Docker image
-docker build -t rag-app .
+docker build -t cravo-app .
 
 # Run the container
-docker run -p 8501:8501 -v /path/to/chromadb:/app/chromadb -e OPENAI_API_KEY=your_key_here rag-app
+docker run -p 8501:8501 -v /path/to/chromadb:/app/chromadb -e OPENAI_API_KEY=your_key_here cravo-app
 ```
 
 ## Cloud Deployment

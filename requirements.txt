@@ -19,3 +19,8 @@ watchfiles==1.0.5
 websockets==15.0.1
 streamlit-bokeh==3.7.1
 nltk==3.9.1
+tenacity
+openai
+dotenv 
+beautifulsoup4
+tiktoken
